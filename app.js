@@ -1,4 +1,7 @@
-var express = require('express');
+//module dependencies
+var express = require('express')
+, stylus = require('stylus')
+, nib = require('nib');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
@@ -9,11 +12,18 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
-
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
-
+function compile(str, path) {
+  return stylus(str)
+    .set('filename', path)
+    .use(nib())
+}
+app.set('views', path.join(__dirname, 'views'))
+app.set('view engine', 'jade')
+app.use(stylus.middleware(
+    { src: path.join(__dirname, 'public'), compile: compile
+}
+))
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
