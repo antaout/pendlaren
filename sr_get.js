@@ -22,7 +22,6 @@ var request = http.get(url, function(response) {
            
             data = JSON.parse(data);
             titel = data.sr.playlist[0].song[0].title[0];
-            
             console.log('Titel: ', titel);
         
         });
@@ -32,3 +31,5 @@ var request = http.get(url, function(response) {
 
 
 });
+
+module.exports.request = request;
