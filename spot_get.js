@@ -1,5 +1,5 @@
 var https = require('https');
-    url = 'https://api.spotify.com/v1/search?q=tania%20bowra&type=artist';
+    url = 'https://api.spotify.com/v1/search?q=' + fName + '%20'+ sName + '&type=artist';
 
 var request = https.get(url, function(response) {
     
@@ -13,10 +13,12 @@ var request = https.get(url, function(response) {
     
     response.on('end', function(err) {
         
-     
+      
       
 
-        console.log(jsonHolder);
+        var obj = JSON.parse(jsonHolder);
+      
+        console.log(obj.artists.items[0].external_urls.spotify);
     
         
     });
