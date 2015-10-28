@@ -1,5 +1,7 @@
+var titelModule = require('./sr_get');
+var titel = titelModule.titel;
 var https = require('https');
-    url = 'https://api.spotify.com/v1/search?q=' + fName + '%20'+ sName + '&type=artist';
+    url = 'https://api.spotify.com/v1/search?q=' + titel + '&type=artist';
 
 var request = https.get(url, function(response) {
     
@@ -18,7 +20,7 @@ var request = https.get(url, function(response) {
 
         var obj = JSON.parse(jsonHolder);
       
-        console.log(obj.artists.items[0].external_urls.spotify);
+        spotUri = obj.artists.items[0].external_urls.spotify;
     
         
     });

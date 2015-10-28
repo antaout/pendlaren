@@ -1,7 +1,7 @@
 var parseString = require('xml2js').parseString;
 
 var http = require('http');
-    url = 'http://api.sr.se/api/v2/playlists/rightnow?channelid=2576';
+    url = 'http://api.sr.se/api/v2/playlists/rightnow?channelid=132';
 
 var request = http.get(url, function(response) {
     
@@ -22,7 +22,8 @@ var request = http.get(url, function(response) {
            
             data = JSON.parse(data);
             titel = data.sr.playlist[0].song[0].title[0];
-            console.log('Titel: ', titel);
+      
+   
         
         });
         

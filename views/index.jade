@@ -1,10 +1,9 @@
 extend layout
 
 block content
-  p
-    | Vivamus hendrerit arcu sed erat molestie
-    | vehicula. Sed auctor neque eu tellus
-    | rhoncus ut eleifend nibh porttitor. Ut in.
+    <iframe src="https://embed.spotify.com/?uri=spotify:track:5JunxkcjfCYcY7xJ29tLai" frameborder="0" allowtransparency="true">       </iframe>
+   
+    a(href='#{spotUri}') #{titel}
   p
     | Donec congue lacinia dui, a porttitor
     | lectus condimentum laoreet. Nunc eu
@@ -12,6 +11,8 @@ block content
     | lectus vestibulum faucibus eget in metus.
     | In pellentesque faucibus vestibulum. Nulla
     | at nulla justo, eget luctus tortor.
+    iframe
+        src="https://embed.spotify.com/?uri=spotify:track:5JunxkcjfCYcY7xJ29tLai" frameborder="0" allow
 block sidebar
   .widget
     h1 Widget
