@@ -2,25 +2,14 @@ extend layout
 
 block content
 
-    a(href='#{spotUri}') #{titel}
+    a(href='#{spotUri}') #{artist}
 
-  p
-    |Vivamus hendrerit arcu sed erat molestie
-    |vehicula. Sed auctor neque eu tellus
-    |rhoncus ut eleifend nibh porttitor. Ut in.
-
-  p
-    | Donec congue lacinia dui, a porttitor
-    | lectus condimentum laoreet. Nunc eu
-    | ullamcorper orci. Quisque eget odio ac
-    | lectus vestibulum faucibus eget in metus.
-    | In pellentesque faucibus vestibulum. Nulla
-    | at nulla justo, eget luctus tortor.
+    p
+        |#{spotId}
 
 block sidebar
   .widget
     h1 Spotify
-    p
         <iframe src="https://embed.spotify.com/?uri=spotify:track: 6tqzOYuE3lrNVPDgtF3MjM" width="300" height="380" frameborder="0"  allowtransparency="true"></iframe>
       
       

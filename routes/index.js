@@ -4,24 +4,97 @@ module.exports = router;
 var request = require("request");
 var parseString = require('xml2js').parseString;
 
+var id = "2576";
 
+/*GET home page.*/
+router.get('/', function (req, res, next) {
+    getArtist(id, function (srArtist) {
+        console.log(srArtist);
+            
+        if (srArtist.indexOf("&") > -1) {
 
-var titelModule = require('../sr_get.js');
-var titel = titelModule.titel;
-
-var titelModule = require('../spot_get.js');
-var spotUri = titelModule.spotUri;
-
-//var util = require('util');
-
-/*GET home page.*/ 
-router.get('/', function(req, res, next) {
-  //res.render('index', {sr: util.inspect(sr)});
-    res.render('index', titel);
+            artistList = srArtist.split("&");
+            srArtist = artistList[0];
+            console.log(artistList);
+        }
+        if (srArtist.indexOf("[+]") > -1) {
+            
+            artistList = srArtist.split("[+]");
+            srArtist = artistList[0];
+            console.log(artistList);
+        }
+        
+        getSpotUri(srArtist, function (spotObj) {
+            res.render('index', {
+                spotUri : spotObj.artists.items[0].external_urls['spotify'],
+                spotId : spotObj.artists.items[0]['id'],
+                artist : srArtist
+            });
     
+        });
+
+
+    });
+
 });
 
-module.exports = router;  
+
+function getSpotUri(srArtist, callback) {
+
+    var request = require("request");
+
+    var options = {
+        method: 'GET',
+        url: 'https://api.spotify.com/v1/search',
+        qs: {
+            q: '*' + srArtist,
+            type: 'artist'
+        }
+    };
+
+    request(options, function (error, response, body) {
+        if (error) throw new Error(error);
+
+        var obj = JSON.parse(body);
+    
+        callback(obj);
+        return;
+    });
+}
+
+function getArtist(id, callback) {
+
+    var request = require("request");
+
+    var options = {
+        method: 'GET',
+        url: 'http://api.sr.se/api/v2/playlists/rightnow',
+        qs: {
+            channelid: id
+        }
+    };
+
+    request(options, function (error, response, body) {
+        if (error) throw new Error(error);
+
+        parseString(body, function (err, result) {
+
+            body = JSON.stringify(result);
+            body = JSON.parse(body);
+            srArtist = body.sr.playlist[0].song[0].artist[0];
+
+        });
+
+        callback(srArtist);
+        return;
+    });
+}
+
+
+
+
+
+module.exports = router;
 
 /*GET SR page
 router.get('/sr', function(req, res) {
@@ -72,4 +145,4 @@ var request = http.get(url, function(response) {
         });
         
     });
-*/ 
+*/
