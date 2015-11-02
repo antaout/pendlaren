@@ -8,8 +8,14 @@ var id = "2576";
 
 /*GET home page.*/
 router.get('/', function (req, res, next) {
-    getArtist(id, function (srArtist) {
-        console.log(srArtist);
+    
+    var id = req.query["id"];
+
+    getArtist(id, function (srBody) {
+        
+        srArtist = srBody.sr.playlist[0].song[0].artist[0];
+        srTitle = srBody.sr.playlist[0].song[0].title[0];
+        
             
         if (srArtist.indexOf("&") > -1) {
 
@@ -24,11 +30,18 @@ router.get('/', function (req, res, next) {
             console.log(artistList);
         }
         
-        getSpotUri(srArtist, function (spotObj) {
+        getSpotUri(srArtist, function(spotObj) {
+            
+            //if items[0] is null render error
+            
             res.render('index', {
+                
                 spotUri : spotObj.artists.items[0].external_urls['spotify'],
-                spotId : spotObj.artists.items[0]['id'],
-                artist : srArtist
+                spotArtistId : spotObj.artists.items[0]['id'],
+                //spotTitleId : spotObj.tracks.items[0]['id'],
+                artist : srArtist,
+                title : srTitle
+            
             });
     
         });
@@ -48,7 +61,7 @@ function getSpotUri(srArtist, callback) {
         url: 'https://api.spotify.com/v1/search',
         qs: {
             q: '*' + srArtist,
-            type: 'artist'
+            type: 'artist',
         }
     };
 
@@ -81,11 +94,10 @@ function getArtist(id, callback) {
 
             body = JSON.stringify(result);
             body = JSON.parse(body);
-            srArtist = body.sr.playlist[0].song[0].artist[0];
-
+      
         });
 
-        callback(srArtist);
+        callback(body);
         return;
     });
 }

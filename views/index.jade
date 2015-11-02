@@ -1,15 +1,28 @@
 extend layout
 
 block content
-
-    a(href='#{spotUri}') #{artist}
-
     p
-        |#{spotId}
+    a(href='#{spotUri}') #{artist} - #{title}
+
+    h1 p2 Världen
+    a(href='?id=2619')
+        img(src='/img/2619.jpg')
+
+    h1 p2 Klassisk
+    a(href='?id=1603')
+        img(src='/img/1603.jpg')
+
+    h1 p3 STAR!!
+    a(href='?id=1607')
+        img(src='/img/1607.jpg')
+
+    h1 p3 Din Gata
+    a(href='?id=2576')
+        img(src='/img/2576.jpg')
 
 block sidebar
   .widget
     h1 Spotify
-        <iframe src="https://embed.spotify.com/?uri=spotify:track: 6tqzOYuE3lrNVPDgtF3MjM" width="300" height="380" frameborder="0"  allowtransparency="true"></iframe>
+        <iframe src="https://embed.spotify.com/?uri=spotify:track: #{spotTitleId}" width="300" height="380" frameborder="0"  allowtransparency="true"></iframe>
       
       
