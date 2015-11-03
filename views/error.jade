@@ -1,6 +1,29 @@
 extends layout
 
 block content
-  h1= message
-  h2= error.status
-  pre #{error.stack}
+
+   .channels
+        .channelBox
+            h1 p2 Världen
+            a(href='?id=2619')
+                img(src='/img/2619.jpg')
+
+        .channelBox
+            h1 p2 Klassisk
+            a(href='?id=1603')
+                img(src='/img/1603.jpg')
+        
+        .channelBox
+            h1 p3 STAR!!
+            a(href='?id=1607')
+                img(src='/img/1607.jpg')
+
+        .channelBox
+            h1 p3 Din Gata
+            a(href='?id=2576')
+                img(src='/img/2576.jpg')
+
+block sidebar
+    .widget
+        h1 Spotify
+        p #{message}

@@ -3,8 +3,42 @@ var router = express.Router();
 module.exports = router;
 var request = require("request");
 var parseString = require('xml2js').parseString;
+var async = require('async');
+
+var spotArtistObj = '';
+var spotTrackObj = '';
+var spotTrackId = '';
+var spotTrackUri = '';
+var trackError = '';
 
 var id = "2576";
+
+/*GET spotify data.*/
+
+router.get('/api/spot', function (req, res, next) {
+    getArtist(id, function (srArtist) {
+
+
+        getSpotUri(srArtist, function (spotObj) {
+            res.json(spotObj);
+
+        });
+
+
+    });
+
+});
+
+/*GET sr data.*/
+router.get('/api/sr', function (req, res, next) {
+    getArtist(id, function (srArtist, body) {
+
+    res.json(body);
+
+
+    });
+
+});
 
 /*GET home page.*/
 router.get('/', function (req, res, next) {
@@ -13,46 +47,69 @@ router.get('/', function (req, res, next) {
 
     getArtist(id, function (srBody) {
         
-        srArtist = srBody.sr.playlist[0].song[0].artist[0];
-        srTitle = srBody.sr.playlist[0].song[0].title[0];
+        try {
+            srArtist = srBody.sr.playlist[0].song[0].artist[0];
+            srTrack = srBody.sr.playlist[0].song[0].title[0];
+        } catch(err){
+            res.render('error', {
+                message: "Cannot find song"
+            });
+            return;
+        }
         
-            
         if (srArtist.indexOf("&") > -1) {
 
             artistList = srArtist.split("&");
             srArtist = artistList[0];
-            console.log(artistList);
         }
         if (srArtist.indexOf("[+]") > -1) {
-            
+
             artistList = srArtist.split("[+]");
             srArtist = artistList[0];
-            console.log(artistList);
         }
-        
-        getSpotUri(srArtist, function(spotObj) {
-            
-            //if items[0] is null render error
-            
-            res.render('index', {
-                
-                spotUri : spotObj.artists.items[0].external_urls['spotify'],
-                spotArtistId : spotObj.artists.items[0]['id'],
-                //spotTitleId : spotObj.tracks.items[0]['id'],
-                artist : srArtist,
-                title : srTitle
-            
-            });
-    
-        });
 
+        async.parallel([
+
+            function (callback) {
+
+                    getSpotArtist(srArtist, callback);
+
+                                },
+            function (callback) {
+
+                    getSpotTrack(srTrack, callback);
+                    
+                            }
+                        ],
+
+            function (err) {
+                if(trackError != ''){
+                    res.render('error', {
+                        
+                    });  
+                };
+                if (err) console.log(err);
+                
+                res.render('index', {
+                    
+                    
+                    spotArtistUri: spotArtistObj.artists.items[0].external_urls['spotify'],
+                    spotArtistId: spotArtistObj.artists.items[0]['id'],
+                    spotTrackId: spotTrackId,
+                    spotTrackUri: spotTrackUri,
+                    artist: srArtist,
+                    title: srTrack
+
+                });
+
+            });
 
     });
 
 });
 
 
-function getSpotUri(srArtist, callback) {
+function getSpotArtist(srArtist, callback, error) {
 
     var request = require("request");
 
@@ -68,9 +125,49 @@ function getSpotUri(srArtist, callback) {
     request(options, function (error, response, body) {
         if (error) throw new Error(error);
 
-        var obj = JSON.parse(body);
-    
-        callback(obj);
+        spotArtistObj = JSON.parse(body);
+
+        callback(spotArtistObj);
+        return;
+    });
+}
+
+function getSpotTrack(srTrack, callback, error) {
+
+    var request = require("request");
+
+    var options = {
+        method: 'GET',
+        url: 'https://api.spotify.com/v1/search',
+        qs: {
+            q: '*' + srTrack,
+            type: 'track',
+        }
+    };
+
+    request(options, function (error, response, body) {
+        if (error) throw new Error(error);
+
+        spotTrackObj = JSON.parse(body);
+        
+        if(spotTrackObj.tracks.items[0] === undefined){
+            
+            trackError = 'cannot find track';
+            callback();
+            return;
+        };
+        
+        if(spotTrackObj.tracks.items[0].external_urls === undefined){
+              
+            trackError = 'cannot find track';
+            callback();
+            return;
+        };
+        
+        spotTrackId = spotTrackObj.tracks.items[0]['id'];
+        spotTrackUri = spotTrackObj.tracks.items[0].external_urls['spotify'];
+        
+        callback();
         return;
     });
 }
@@ -94,7 +191,7 @@ function getArtist(id, callback) {
 
             body = JSON.stringify(result);
             body = JSON.parse(body);
-      
+
         });
 
         callback(body);
@@ -102,59 +199,4 @@ function getArtist(id, callback) {
     });
 }
 
-
-
-
-
 module.exports = router;
-
-/*GET SR page
-router.get('/sr', function(req, res) {
-
-var http = require('http');
-    url = 'http://api.sr.se/api/v2/channels/132';
-var request = http.get(url, function(response) {
-    
-    var jsonHolder = '',
-        data;
-    
-    response.on('data', function(chunk) {
-        jsonHolder += chunk;
-    });
-    
-    
-    response.on('end', function(err) {
-        
-        parseString(jsonHolder, function (err, result) {
-            
-            data = JSON.stringify(result);
-            data = JSON.parse(data);
-            img = data.sr.image;  
-            siteUrl = data.sr.siteurl;
-            
-            console.log(siteUrl);
-        });
-});
-});
-});
-*/
-/*
-    var options = { method: 'GET',
-                   url: 'http://api.sr.se/api/v2/channels/132',
-                   qs: { siteurl: '', image: '', name: '',
-                     utformat: 'json' },
-                   headers: 
-                   { 'postman-token': '94ee30fd-63af-bcac-3554-160082ac33f5',
-                    'cache-control': 'no-cache' } };
-
-    request(options, function (error, response, body) {
-        if (error) throw new Error(error);
-        
-        console.log(JSON.stringify(body));
-        
-        res.render('sr', { 
-            json: body,
-        });
-        
-    });
-*/
