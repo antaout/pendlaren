@@ -42,7 +42,7 @@ router.get('/api/sr', function (req, res, next) {
 
 /*GET home page.*/
 router.get('/', function (req, res, next) {
-    
+    trackError = '';
     var id = req.query["id"];
 
     getArtist(id, function (srBody) {
@@ -85,13 +85,14 @@ router.get('/', function (req, res, next) {
             function (err) {
                 if(trackError != ''){
                     res.render('error', {
+                        message : trackError
                         
                     });  
-                };
+                return;
+                }
                 if (err) console.log(err);
-                
+                try{
                 res.render('index', {
-                    
                     
                     spotArtistUri: spotArtistObj.artists.items[0].external_urls['spotify'],
                     spotArtistId: spotArtistObj.artists.items[0]['id'],
@@ -99,8 +100,11 @@ router.get('/', function (req, res, next) {
                     spotTrackUri: spotTrackUri,
                     artist: srArtist,
                     title: srTrack
-
+                
                 });
+                }catch(err){
+                    message : trackError
+                }
 
             });
 
@@ -124,9 +128,14 @@ function getSpotArtist(srArtist, callback, error) {
 
     request(options, function (error, response, body) {
         if (error) throw new Error(error);
-
+        try{
         spotArtistObj = JSON.parse(body);
-
+        }catch(err){
+            trackError = err;
+            callback();
+            return;
+        }
+            
         callback(spotArtistObj);
         return;
     });
