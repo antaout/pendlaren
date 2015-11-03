@@ -46,10 +46,14 @@ router.get('/', function (req, res, next) {
     var id = req.query["id"];
 
     getArtist(id, function (srBody) {
-        
+        /*
+            srChannel = srBody.sr.channel.playlist[0].channel['name'];
+            console.log(srChannel);
+        */
         try {
             srArtist = srBody.sr.playlist[0].song[0].artist[0];
             srTrack = srBody.sr.playlist[0].song[0].title[0];
+
         } catch(err){
             res.render('error', {
                 message: "Cannot find song"
@@ -100,6 +104,7 @@ router.get('/', function (req, res, next) {
                     spotTrackUri: spotTrackUri,
                     artist: srArtist,
                     title: srTrack
+                    //channel: srChannel
                 
                 });
                 }catch(err){
