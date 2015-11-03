@@ -2,36 +2,35 @@ extend layout
 
 block content
 
-   .channels
-        .channelBox
-            h1 p2 Världen
-            a(href='?id=2619')
-                img(src='/img/2619.jpg')
+    .channelBox
+        h1 p2 Världen
+        a(href='?id=2619')
+            img(src='/img/2619.jpg')
 
-        .channelBox
-            h1 p2 Klassisk
-            a(href='?id=1603')
-                img(src='/img/1603.jpg')
+    .channelBox
+        h1 p2 Klassisk
+        a(href='?id=1603')
+            img(src='/img/1603.jpg')
         
-        .channelBox
-            h1 p3 STAR!!
-            a(href='?id=1607')
-                img(src='/img/1607.jpg')
+    .channelBox
+        h1 p3 STAR!!
+        a(href='?id=1607')
+            img(src='/img/1607.jpg')
 
-        .channelBox
-            h1 p3 Din Gata
-            a(href='?id=2576')
-                img(src='/img/2576.jpg')
+    .channelBox
+        h1 p3 Din Gata
+        a(href='?id=2576')
+            img(src='/img/2576.jpg')
 
 block sidebar
   .widget
-    h1 Spelas just nu på 
+    h1 Spelas just nu på #{channel}
     p 
         a(href='#{spotArtistUri}') #{artist} - 
         a(href='#{spotTrackUri') #{title}
     
     h1 Spotify
     p
-        <iframe src="https://embed.spotify.com/?uri=spotify:track:#{spotTrackId}" width="255" height="380" frameborder="0" allowtransparency="true"></iframe>
+        <iframe src="https://embed.spotify.com/?uri=spotify:track:#{spotTrackId}" width="255" height="300" frameborder="0" allowtransparency="true"></iframe>
     
         

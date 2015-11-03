@@ -13,7 +13,9 @@ var trackError = '';
 
 var id = "2576";
 
-/*GET spotify data.*/
+/*
+*GET spotify data.
+*/
 
 router.get('/api/spot', function (req, res, next) {
     getArtist(id, function (srArtist) {
@@ -29,38 +31,63 @@ router.get('/api/spot', function (req, res, next) {
 
 });
 
-/*GET sr data.*/
+/*
+*GET sr data.
+*/
 router.get('/api/sr', function (req, res, next) {
     getArtist(id, function (srArtist, body) {
 
-    res.json(body);
+        res.json(body);
 
 
     });
 
 });
 
-/*GET home page.*/
+/*
+*GET home page.
+*/
+
+/*
+*Skapar router
+*/
 router.get('/', function (req, res, next) {
+/*
+*Nollställer trackError strängen
+*/
     trackError = '';
+/*
+*Sätter SR kanal ID till URL
+*/
     var id = req.query["id"];
 
+/*
+*Startar funktionen för SR API
+*/
     getArtist(id, function (srBody) {
+
         /*
-            srChannel = srBody.sr.channel.playlist[0].channel['name'];
-            console.log(srChannel);
+        *Catch för att fånga upp undefined fel, annars värdesätt variabler
         */
         try {
             srArtist = srBody.sr.playlist[0].song[0].artist[0];
             srTrack = srBody.sr.playlist[0].song[0].title[0];
+            srChannel = srBody.sr.playlist[0].channel[0].$["name"];
 
-        } catch(err){
+        /*
+        *Vid fel, skriv ut text på index.jade
+        */
+        } catch (err) {
             res.render('error', {
-                message: "Cannot find song"
+                message: "Kunde inte hitta låt"
             });
             return;
         }
-        
+
+        /*
+        *Om det är flera artister, splittar vid första 
+        *ampersanden och tar första värdet i arrayen.
+        */
         if (srArtist.indexOf("&") > -1) {
 
             artistList = srArtist.split("&");
@@ -72,6 +99,11 @@ router.get('/', function (req, res, next) {
             srArtist = artistList[0];
         }
 
+        /*
+        *Startar funktionerna för att hämta Artist
+        *och Låt från Spotify API, använder async.paralell
+        *för att köra dem samtidigt.
+        */
         async.parallel([
 
             function (callback) {
@@ -82,33 +114,37 @@ router.get('/', function (req, res, next) {
             function (callback) {
 
                     getSpotTrack(srTrack, callback);
-                    
+
                             }
                         ],
 
             function (err) {
-                if(trackError != ''){
+                if (trackError != '') {
                     res.render('error', {
-                        message : trackError
-                        
-                    });  
-                return;
+                        message: trackError
+
+                    });
+                    return;
                 }
                 if (err) console.log(err);
-                try{
-                res.render('index', {
-                    
-                    spotArtistUri: spotArtistObj.artists.items[0].external_urls['spotify'],
-                    spotArtistId: spotArtistObj.artists.items[0]['id'],
-                    spotTrackId: spotTrackId,
-                    spotTrackUri: spotTrackUri,
-                    artist: srArtist,
-                    title: srTrack
-                    //channel: srChannel
-                
-                });
-                }catch(err){
-                    message : trackError
+            /*
+            *Om inga problem uppstår rendera sidan 
+            *och värdesätt objekt
+            */
+            try {
+                    res.render('index', {
+
+                        spotArtistUri: spotArtistObj.artists.items[0].external_urls['spotify'],
+                        spotArtistId: spotArtistObj.artists.items[0]['id'],
+                        spotTrackId: spotTrackId,
+                        spotTrackUri: spotTrackUri,
+                        artist: srArtist,
+                        title: srTrack,
+                        channel: srChannel
+
+                    });
+                } catch (err) {
+                    message: trackError
                 }
 
             });
@@ -117,7 +153,10 @@ router.get('/', function (req, res, next) {
 
 });
 
-
+/*
+*Funktion för att hämta SR Artisten
+*som JSON objekt i Spotify.
+*/
 function getSpotArtist(srArtist, callback, error) {
 
     var request = require("request");
@@ -133,19 +172,22 @@ function getSpotArtist(srArtist, callback, error) {
 
     request(options, function (error, response, body) {
         if (error) throw new Error(error);
-        try{
-        spotArtistObj = JSON.parse(body);
-        }catch(err){
+        try {
+            spotArtistObj = JSON.parse(body);
+        } catch (err) {
             trackError = err;
             callback();
             return;
         }
-            
+
         callback(spotArtistObj);
         return;
     });
 }
-
+/*
+*Funktion för att hämta SR låten 
+*som JSON objekt i Spotify.
+*/
 function getSpotTrack(srTrack, callback, error) {
 
     var request = require("request");
@@ -163,29 +205,32 @@ function getSpotTrack(srTrack, callback, error) {
         if (error) throw new Error(error);
 
         spotTrackObj = JSON.parse(body);
-        
-        if(spotTrackObj.tracks.items[0] === undefined){
-            
-            trackError = 'cannot find track';
+
+        if (spotTrackObj.tracks.items[0] === undefined) {
+
+            trackError = 'Kunde inte hitta låt';
             callback();
             return;
         };
-        
-        if(spotTrackObj.tracks.items[0].external_urls === undefined){
-              
-            trackError = 'cannot find track';
+
+        if (spotTrackObj.tracks.items[0].external_urls === undefined) {
+
+            trackError = 'Kunde inte hitta låt';
             callback();
             return;
         };
-        
+
         spotTrackId = spotTrackObj.tracks.items[0]['id'];
         spotTrackUri = spotTrackObj.tracks.items[0].external_urls['spotify'];
-        
+
         callback();
         return;
     });
 }
 
+/*
+*Funktion för att hämta kanal data från SR.
+*/
 function getArtist(id, callback) {
 
     var request = require("request");
@@ -200,7 +245,11 @@ function getArtist(id, callback) {
 
     request(options, function (error, response, body) {
         if (error) throw new Error(error);
-
+        
+/*
+*Datan finns enbart som XML på SR 
+*så gör om den till ett JSON objekt.
+*/
         parseString(body, function (err, result) {
 
             body = JSON.stringify(result);
