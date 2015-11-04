@@ -1,2 +1,2 @@
-# pendlaren
+# Diggaren
 WS projekt
