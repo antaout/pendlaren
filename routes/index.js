@@ -21,8 +21,8 @@ router.get('/api/spot', function (req, res, next) {
     getArtist(id, function (srArtist) {
 
 
-        getSpotUri(srArtist, function (spotObj) {
-            res.json(spotObj);
+        getSpotArtist(srArtist, function (callback) {
+            res.json(callback);
 
         });
 
@@ -35,9 +35,9 @@ router.get('/api/spot', function (req, res, next) {
 *GET sr data.
 */
 router.get('/api/sr', function (req, res, next) {
-    getArtist(id, function (srArtist, body) {
+    getArtist(id, function (srBody) {
 
-        res.json(body);
+        res.json(srBody);
 
 
     });
@@ -243,13 +243,12 @@ function getArtist(id, callback) {
         }
     };
 
-    request(options, function (error, response, body) {
-        if (error) throw new Error(error);
-        
 /*
 *Datan finns enbart som XML på SR 
-*så gör om den till ett JSON objekt.
-*/
+*så gör om den till ett JSON objekt 
+*/  
+    request(options, function (error, response, body) {    
+
         parseString(body, function (err, result) {
 
             body = JSON.stringify(result);
